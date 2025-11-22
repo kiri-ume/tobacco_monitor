@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.antigravity.tobaccoprice</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/opt/homebrew/bin/node</string>
+        <string>/Users/umehara/work_antigravity/ext_cigar_info/tobacco_price_monitor/index.js</string>
+        <string>--once</string>
+    </array>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>10</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>/Users/umehara/work_antigravity/ext_cigar_info/tobacco_price_monitor/stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/umehara/work_antigravity/ext_cigar_info/tobacco_price_monitor/stderr.log</string>
+    <key>WorkingDirectory</key>
+    <string>/Users/umehara/work_antigravity/ext_cigar_info/tobacco_price_monitor</string>
+</dict>
+</plist>

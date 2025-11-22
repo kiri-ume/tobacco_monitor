@@ -1,0 +1,43 @@
+name: Daily Tobacco Price Monitor
+
+on:
+  schedule:
+    # 毎日 日本時間 10:00 (UTC 01:00) に実行
+    - cron: '0 1 * * *'
+  workflow_dispatch: # 手動実行用
+
+permissions:
+  contents: write
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install system dependencies (Poppler)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y poppler-utils
+
+    - name: Install NPM dependencies
+      run: npm ci
+      # package-lock.jsonがない場合は npm install
+
+    - name: Run Monitor
+      run: node index.js --once
+
+    - name: Commit and Push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add data/ processed_pdfs.json
+        # 変更がない場合はエラーにならずに終了するようにする
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Update tobacco price data [skip ci]" && git push)
