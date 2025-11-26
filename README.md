@@ -35,11 +35,21 @@ You can run this application automatically using GitHub Actions for free.
     git remote add origin <YOUR_GITHUB_REPO_URL>
     git push -u origin main
     ```
-3.  That's it! The workflow defined in `.github/workflows/daily_monitor.yml` will:
+3.  **Configure Email Notifications (Optional but Recommended):**
+    Go to your GitHub Repository -> Settings -> Secrets and variables -> Actions -> New repository secret.
+    Add the following secrets:
+    -   `SMTP_USER`: Your email address (e.g., `yourname@gmail.com`)
+    -   `SMTP_PASS`: Your email password (for Gmail, use an [App Password](https://myaccount.google.com/apppasswords))
+    -   `MAIL_TO`: The email address to receive notifications
+    -   `SMTP_HOST`: (Optional) Default is `smtp.gmail.com`
+    -   `SMTP_PORT`: (Optional) Default is `587`
+
+4.  That's it! The workflow defined in `.github/workflows/daily_monitor.yml` will:
     -   Run every day at 10:00 AM JST.
     -   Check for new PDFs.
     -   Convert them to text.
-    -   **Commit and Push the new text files back to your repository automatically.**
+    -   **Send an email with the extracted text.**
+    -   Commit and Push the new text files back to your repository automatically.
 
 ### 2. Local Manual Execution
 Run the application manually.

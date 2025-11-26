@@ -87,6 +87,50 @@ async function extractTextWithOcr(pdfBuffer) {
     }
 }
 
+const nodemailer = require('nodemailer');
+
+// Email configuration
+const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: process.env.SMTP_PORT || 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+    },
+});
+
+async function sendEmail(processedItems) {
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASS || !process.env.MAIL_TO) {
+        console.log('Email configuration missing. Skipping email notification.');
+        return;
+    }
+
+    const subject = `[Tobacco Monitor] ${processedItems.length} New PDF(s) Processed`;
+    let text = `Found and processed ${processedItems.length} new PDF(s):\n\n`;
+
+    processedItems.forEach(item => {
+        text += `----------------------------------------\n`;
+        text += `Title: ${item.title}\n`;
+        text += `URL: ${item.url}\n`;
+        text += `\n[Extracted Text]\n`;
+        text += item.content.substring(0, 2000) + (item.content.length > 2000 ? '\n...(truncated)...' : ''); // Limit text length per item
+        text += `\n\n`;
+    });
+
+    try {
+        const info = await transporter.sendMail({
+            from: `"Tobacco Price Monitor" <${process.env.SMTP_USER}>`,
+            to: process.env.MAIL_TO,
+            subject: subject,
+            text: text,
+        });
+        console.log('Email sent: %s', info.messageId);
+    } catch (error) {
+        console.error('Error sending email:', error);
+    }
+}
+
 async function processPdf(url, linkText) {
     try {
         console.log(`Processing: ${linkText} (${url})`);
@@ -105,8 +149,11 @@ async function processPdf(url, linkText) {
 
         processedPdfs.push(url);
         await saveProcessedList();
+
+        return { title: linkText, url: url, content: text };
     } catch (error) {
         console.error(`Error processing PDF ${url}:`, error.message);
+        return null;
     }
 }
 
@@ -135,9 +182,18 @@ async function checkAndProcess() {
             console.log('No new PDFs found.');
         } else {
             console.log(`Found ${newLinks.length} new PDFs.`);
+
+            const processedItems = [];
             // Process all new PDFs
             for (const link of newLinks) {
-                await processPdf(link.url, link.text);
+                const result = await processPdf(link.url, link.text);
+                if (result) {
+                    processedItems.push(result);
+                }
+            }
+
+            if (processedItems.length > 0) {
+                await sendEmail(processedItems);
             }
         }
 
