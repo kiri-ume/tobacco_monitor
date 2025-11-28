@@ -101,6 +101,14 @@ const transporter = nodemailer.createTransport({
 });
 
 async function sendEmail(processedItems) {
+    console.log('--- Email Configuration Check ---');
+    console.log('SMTP_HOST:', process.env.SMTP_HOST || 'Default (smtp.gmail.com)');
+    console.log('SMTP_PORT:', process.env.SMTP_PORT || 'Default (587)');
+    console.log('SMTP_USER:', process.env.SMTP_USER ? 'SET (OK)' : 'MISSING (Error)');
+    console.log('SMTP_PASS:', process.env.SMTP_PASS ? 'SET (OK)' : 'MISSING (Error)');
+    console.log('MAIL_TO:', process.env.MAIL_TO ? 'SET (OK)' : 'MISSING (Error)');
+    console.log('---------------------------------');
+
     if (!process.env.SMTP_USER || !process.env.SMTP_PASS || !process.env.MAIL_TO) {
         console.log('Email configuration missing. Skipping email notification.');
         return;
